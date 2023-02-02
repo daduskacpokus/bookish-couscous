@@ -7,27 +7,26 @@ data "aws_caller_identity" "current" {}
 ################################################################################
 
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "~> 19.6"
+  cluster_version = "1.24"
 
   cluster_name                   = local.name
   cluster_endpoint_public_access = true
 
   cluster_addons = {
     coredns = {
-      preserve    = true
-      most_recent = true
-
-      timeouts = {
-        create = "25m"
-        delete = "10m"
-      }
+      addon_version = "v1.8.7-eksbuild.3"
     }
     kube-proxy = {
-      most_recent = true
+      addon_version = "v1.24.9-eksbuild.1"
     }
     vpc-cni = {
-      most_recent = true
+      addon_version = "v1.12.1-eksbuild.2"
+    }
+    aws-ebs-csi-driver = {
+      addon_version            = "v1.15.0-eksbuild.1"
+      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
   }
 
@@ -113,14 +112,6 @@ module "eks" {
         Environment = "test"
       }
 
-      taints = {
-        dedicated = {
-          key    = "dedicated"
-          value  = "spotGroup"
-          effect = "NO_SCHEDULE"
-        }
-      }
-
       update_config = {
         max_unavailable_percentage = 33 # or set `max_unavailable`
       }
@@ -131,18 +122,9 @@ module "eks" {
     }
   }
 
-  cluster_identity_providers = {
-    sts = {
-      client_id = "sts.amazonaws.com"
-    }
-  }
-
   # aws-auth configmap
   manage_aws_auth_configmap = true
 
-  aws_auth_node_iam_role_arns_non_windows = [
-    module.eks_managed_node_group.iam_role_arn
-  ]
   aws_auth_accounts = [
     var.account_id,
   ]
@@ -151,36 +133,6 @@ module "eks" {
   tags = local.tags
 }
 
-################################################################################
-# Sub-Module Usage on Existing/Separate Cluster
-################################################################################
-
-module "eks_managed_node_group" {
-  source = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
-
-  name            = "separate-eks-mng"
-  cluster_name    = module.eks.cluster_name
-  cluster_version = module.eks.cluster_version
-
-  subnet_ids                        = module.vpc.private_subnets
-  cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
-  vpc_security_group_ids = [
-    module.eks.cluster_security_group_id,
-  ]
-
-  ami_type = "BOTTLEROCKET_x86_64"
-  platform = "bottlerocket"
-
-  # this will get added to what AWS provides
-  bootstrap_extra_args = <<-EOT
-    # extra args added
-    [settings.kernel]
-    lockdown = "integrity"
-
-  EOT
-
-  tags = merge(local.tags, { Separate = "eks-managed-node-group" })
-}
 
 
 ################################################################################
@@ -230,6 +182,22 @@ module "kms" {
   description           = "${local.name} cluster encryption key"
   enable_default_policy = true
   key_owners            = [data.aws_caller_identity.current.arn]
+
+  tags = local.tags
+}
+
+module "ebs_csi_irsa_role" {
+  source                = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version               = "~> v5.11"
+  role_name             = "ebs-csi"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
 
   tags = local.tags
 }
