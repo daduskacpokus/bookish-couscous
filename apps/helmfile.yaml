@@ -12,10 +12,10 @@ helmDefaults:
 releases:
 - name: prometheus
   namespace: prometheus
-  chart: prometheus-community/kube-prometheus-stack
+  chart: prometheus-community/prometheus
   values: 
     - prometheus.yaml
-  version: 44.3.0
+  version: 19.3.3
 - name: grafana
   namespace: grafana
   chart: grafana/grafana

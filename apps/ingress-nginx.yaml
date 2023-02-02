@@ -1,7 +1,7 @@
 controller:
   metrics:
     enabled: true
-    serviceMonitor:
-      additionalLabels:
-        release: prometheus
-      enabled: true
+    service:
+      annotations:
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
