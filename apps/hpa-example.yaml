@@ -1,0 +1,8 @@
+ingress:
+  enabled: true
+  ingressClass: nginx
+  hosts:
+    - host: a88966ae957224982b50d7ec1e7263b5-459757633.us-east-1.elb.amazonaws.com
+      paths:
+        - path: /hpa-example(/|$)(.*)
+          pathType: Prefix  
