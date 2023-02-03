@@ -3,12 +3,9 @@ resource "grafana_data_source" "testdata_datasource" {
   type = "testdata"
 }
 
-resource "grafana_folder" "rule_folder" {
-  title = "My Rule Folder"
-}
-resource "grafana_rule_group" "my_rule_group" {
-  name             = "My Alert Rules"
-  folder_uid       = grafana_folder.rule_folder.uid
+resource "grafana_rule_group" "failures_alerts" {
+  name             = "Failure alerts"
+  folder_uid       = grafana_folder.terraform.uid
   interval_seconds = 60
   org_id           = 1
 

@@ -7,30 +7,12 @@ datasources:
      url: http://prometheus-server.prometheus.svc.cluster.local
      access: proxy
      isDefault: true
-dashboardProviders:
-  dashboardproviders.yaml:
-    apiVersion: 1
-    providers:
-    - name: 'default'
-      orgId: 1
-      folder: ''
-      type: file
-      disableDeletion: false
-      editable: true
-      options:
-        path: /var/lib/grafana/dashboards/default
-dashboards:
-  default:
-    nginx:
-      url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/grafana/dashboards/nginx.json
-      token: ''
-      datasource: Prometheus
 ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx    
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-  hosts: ["a54a40c5114d84eb880870b8f7939450-1264209402.us-east-1.elb.amazonaws.com"]
+  hosts: ["a39d223c081044be586feb565045d2df-1072863890.us-east-1.elb.amazonaws.com"]
   path: /grafana/?(.*)
   pathType: Prefix
 grafana.ini:

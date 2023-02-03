@@ -1,4 +1,4 @@
-resource "grafana_contact_point" "my_slack_contact_point" {
+resource "grafana_contact_point" "slack_contact_point" {
   name = "Send to My Slack Channel"
 
   slack {
