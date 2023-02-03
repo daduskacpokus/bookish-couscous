@@ -1,2 +1,4 @@
 infra/.terraform*
 infra/env.tfvars
+alerting/.terraform*
+alerting/env.tfvars
