@@ -30,9 +30,9 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx    
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-  hosts: ["a88966ae957224982b50d7ec1e7263b5-459757633.us-east-1.elb.amazonaws.com"]
+  hosts: ["a54a40c5114d84eb880870b8f7939450-1264209402.us-east-1.elb.amazonaws.com"]
   path: /grafana/?(.*)
   pathType: Prefix
 grafana.ini:
   server:
-    root_url: http://localhost:3000/grafana # this host can be localhost
+    root_url: "%(protocol)s://%(domain)s/grafana"

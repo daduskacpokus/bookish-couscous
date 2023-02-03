@@ -27,7 +27,7 @@ releases:
   chart: ingress-nginx/ingress-nginx
   values:
     - ingress-nginx.yaml
-  version: 4.4.3
+  version: 4.4.2
 - name: hpa-example
   namespace: userapps
   chart: ./charts/hpa-example
